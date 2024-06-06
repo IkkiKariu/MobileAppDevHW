@@ -13,6 +13,9 @@ export const MainPage = () => {
     const passSym = 'qwertyuiopasdfghjklzxcvbnm1234567890!@$_'
     const generatePass = async () => {
         setIsLoad(false);
+
+        let currentTimestamp = getCurrentTimestamp();
+
         let res = '';
         for (let i = 0, len = passSym.length; i < limit; ++i) {
             res += passSym.charAt(Math.floor(Math.random() * len))
@@ -25,6 +28,7 @@ export const MainPage = () => {
 
         const addRef = await addDoc(collection(db, "passwords"), {
             password: res,
+            updatedAt: currentTimestamp
         }).then(() => {
             getDB().then(() => setIsLoad(true));
         })
@@ -35,11 +39,22 @@ export const MainPage = () => {
         for (let i = 0, len = passSym.length; i < limit; ++i) {
             res += passSym.charAt(Math.floor(Math.random() * len))
         }
+        
         if (res[0] == '!' || res[0] == '@' || res[0] == '$' || res[0] == '_') {
-            genPass()
-        } else {
-            return res;
+            res = genPass()
         }
+
+        return res;
+    }
+
+    const getCurrentTimestamp = () => {
+        var currentDate = new Date();
+        currentDate.toLocaleString("en-US", {timeZone: "Europe/Moscow"});
+        var currentMoscowTime = currentDate.toLocaleString();
+
+        // console.log(currentMoscowTime);
+
+        return currentMoscowTime;
     }
 
     const getDB = async () => {
@@ -64,15 +79,20 @@ export const MainPage = () => {
         })
     }
 
-    const UpdatePass = async (id) => {
-        await setIsLoad(false);
-        const docRef = doc(db, 'passwords', id);
-        const newPass = genPass();
+    const UpdatePass = (id) => {
+        if(id) {
+            setIsLoad(false);
 
-        const newPassDoc = {password: newPass};
+            let currentTimestamp = getCurrentTimestamp();
 
-        await updateDoc(docRef, newPassDoc)
-            .then(() => {getDB().then(() => setIsLoad(true))}); 
+            const docRef =  doc(db, 'passwords', id);
+            const newPass = genPass();
+
+            const newPassDoc = {password: newPass, updatedAt: currentTimestamp};
+
+            updateDoc(docRef, newPassDoc)
+                .then(() => {getDB().then(() => setIsLoad(true))});
+        } 
     }
 
   return (
