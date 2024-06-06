@@ -61,7 +61,7 @@ export const MainPage = () => {
         const arr = [];
         const getCollection = await getDocs(collection(db, "passwords"))
         await getCollection.forEach((doc) => {
-            arr.push({id: doc.id, pass: doc.data().password})
+            arr.push({id: doc.id, pass: doc.data().password, updatedAt: doc.data().updatedAt})
         })
         await setPassArr(arr);
     }
@@ -121,6 +121,7 @@ export const MainPage = () => {
                                 // <>
                                     <View key={data.id} style={stylePage.passHistoryItemContainer}>
                                         <Text  style={{...stylePage.text, marginBottom: 10}}>{data.pass}</Text>
+                                        <Text  style={{...stylePage.text, marginBottom: 10}}>{data.updatedAt}</Text>
 
                                         <View style={stylePage.passHistoryItem}>
                                             <Button onPress={() => DeletePass(data.id)} title="Delete" />
